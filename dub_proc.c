@@ -43,12 +43,16 @@ int main() {
 
         // Read the message from the redirected standard input
         fgets(child_msg, sizeof(child_msg), stdin);
+        
+        
 
         // Display the message on the terminal through the redirected standard output
-        printf("Child process (ID: %d, Parent ID: %d) received message: %s\n", getpid(), getppid(), child_msg);
+        printf("%s", child_msg);    
 
+	
         // Flush the standard output and exit
         fflush(stdout);
+        
         exit(EXIT_SUCCESS);
     } else {
         // Parent process
@@ -70,7 +74,7 @@ int main() {
         read(childToParentPipe[0], child_msg, sizeof(child_msg));
         close(childToParentPipe[0]); // Close read end after reading
 
-        printf("Parent process (ID: %d, Child ID: %d) received message from child: %s\n", parent, child, child_msg);
+        printf("Parent process (ID: %d, Child ID: %d): %s\n", parent, child, child_msg);
 
         //for (;;) {
             // Parent process can do other tasks here
