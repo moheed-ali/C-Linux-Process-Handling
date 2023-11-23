@@ -51,17 +51,22 @@ int main() {
         close(parentToChildPipe[0]); // Close read end of parent-to-child pipe
         close(childToParentPipe[1]); // Close write end of child-to-parent pipe
 
-        char parent_msg[MSG_SIZE] = "Hello from the parent!";
+        char parent_msg[MSG_SIZE];
+        
+        // Get input from the user
+        printf("Enter a message for the child: ");
+        fgets(parent_msg, sizeof(parent_msg), stdin);
+        
 
         // Write a message to the child through the parent-to-child pipe
         write(parentToChildPipe[1], parent_msg, strlen(parent_msg) + 1);
+	close(parentToChildPipe[1]); // close write end after writing
 
         // Read the message from the child through the child-to-parent pipe
         char child_msg[MSG_SIZE];
         read(childToParentPipe[0], child_msg, sizeof(child_msg));
+	close(childToParentPipe[0]); // Close read end after reading
 
-        close(parentToChildPipe[1]); // Close write end after writing
-        close(childToParentPipe[0]); // Close read end after reading
 
         printf("Parent process (ID: %d, Child ID: %d) sent message: %s\n", parent, child, parent_msg);
         printf("Parent process (ID: %d, Child ID: %d) received message from child: %s\n", parent, child, child_msg);
