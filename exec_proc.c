@@ -122,8 +122,6 @@ int main(int argc, char ** argv)
 
   
 
-  
-
     // make two process which run same 
 
     // program after this instruction 
@@ -133,5 +131,19 @@ int main(int argc, char ** argv)
   
 
     // printf("Hello world!, process_id(pid) = %d \n",getpid()); 
+
+  
+
+  
+
+  
+
+    return 0; 
+
+}
+
+  
+
+  
 
   
