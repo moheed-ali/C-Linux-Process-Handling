@@ -31,20 +31,24 @@ int main() {
         close(parentToChildPipe[1]); // Close write end of parent-to-child pipe
         close(childToParentPipe[0]); // Close read end of child-to-parent pipe
 
-        char child_msg[MSG_SIZE] = "Hello from the child!";
+        // Redirect standard input to read from the parent-to-child pipe
+        dup2(parentToChildPipe[0], STDIN_FILENO);
+        close(parentToChildPipe[0]);
 
-        // Read the message from the parent through the parent-to-child pipe
-        char parent_msg[MSG_SIZE];
-        read(parentToChildPipe[0], parent_msg, sizeof(parent_msg));
+        // Redirect standard output to write to the child-to-parent pipe
+        dup2(childToParentPipe[1], STDOUT_FILENO);
+        close(childToParentPipe[1]);
 
-        // Write a message to the parent through the child-to-parent pipe
-        write(childToParentPipe[1], child_msg, strlen(child_msg) + 1);
+        char child_msg[MSG_SIZE];
 
-        close(parentToChildPipe[0]); // Close read end after reading
-        close(childToParentPipe[1]); // Close write end after writing
+        // Read the message from the redirected standard input
+        fgets(child_msg, sizeof(child_msg), stdin);
 
-        printf("Child process (ID: %d, Parent ID: %d) received message from parent: %s\n", getpid(), getppid(), parent_msg);
-        printf("Child process (ID: %d, Parent ID: %d) sent message: %s\n", getpid(), getppid(), child_msg);
+        // Display the message on the terminal through the redirected standard output
+        printf("Child process (ID: %d, Parent ID: %d) received message: %s\n", getpid(), getppid(), child_msg);
+
+        // Flush the standard output and exit
+        fflush(stdout);
         exit(EXIT_SUCCESS);
     } else {
         // Parent process
@@ -52,28 +56,25 @@ int main() {
         close(childToParentPipe[1]); // Close write end of child-to-parent pipe
 
         char parent_msg[MSG_SIZE];
-        
+
         // Get input from the user
         printf("Enter a message for the child: ");
         fgets(parent_msg, sizeof(parent_msg), stdin);
-        
 
-        // Write a message to the child through the parent-to-child pipe
+        // Write a message to the parent-to-child pipe
         write(parentToChildPipe[1], parent_msg, strlen(parent_msg) + 1);
-	close(parentToChildPipe[1]); // close write end after writing
+        close(parentToChildPipe[1]); // Close write end after writing
 
-        // Read the message from the child through the child-to-parent pipe
+        // Read the message from the child-to-parent pipe
         char child_msg[MSG_SIZE];
         read(childToParentPipe[0], child_msg, sizeof(child_msg));
-	close(childToParentPipe[0]); // Close read end after reading
+        close(childToParentPipe[0]); // Close read end after reading
 
-
-        printf("Parent process (ID: %d, Child ID: %d) sent message: %s\n", parent, child, parent_msg);
         printf("Parent process (ID: %d, Child ID: %d) received message from child: %s\n", parent, child, child_msg);
 
-        for (;;) {
+        //for (;;) {
             // Parent process can do other tasks here
-        }
+        //}
     }
 
     return 0;
